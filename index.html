@@ -14,9 +14,9 @@
 <canvas id="c"></canvas>
 <script>
 // =====================================================================
-// Playables SDK (only trusted inside YouTube's iframe)
+// Playables SDK (outside YouTube it still loads but reports audio off, so gate on IN_PLAYABLES_ENV)
 // =====================================================================
-const yt = (window.ytgame && window.self !== window.top) ? window.ytgame : null;
+const yt = (window.ytgame && window.ytgame.IN_PLAYABLES_ENV) ? window.ytgame : null;
 const sdk = {
   firstFrame(){ try{ yt && yt.game.firstFrameReady(); }catch(e){} },
   ready(){ try{ yt && yt.game.gameReady(); }catch(e){} },
@@ -112,7 +112,7 @@ const easeOutBack = p => 1 + 2.7 * Math.pow(p - 1, 3) + 1.7 * Math.pow(p - 1, 2)
 const easeOutCubic = p => 1 - Math.pow(1 - p, 3);
 
 function resize(){
-  const s = Math.min(innerWidth / W, innerHeight / H);
+  const s = Math.max(0.01, Math.min(innerWidth / W, innerHeight / H));   // YouTube WebView starts hidden at 0x0
   viewScale = s;
   const dpr = Math.min(devicePixelRatio || 1, 2.5);
   cv.style.width = W*s + 'px'; cv.style.height = H*s + 'px';
