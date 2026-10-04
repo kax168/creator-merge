@@ -50,25 +50,26 @@ const TILT_STRENGTH = 0.5, TILT_MAX_DEG = 35;
 const DROP_COOLDOWN = 380;
 // difficulty ramps with score: more variety in the drop queue = harder to keep merging
 const SPAWN_STAGES = [
-  { at: 0,     w: [0.42, 0.34, 0.24] },
-  { at: 1500,  w: [0.34, 0.3, 0.22, 0.14] },
-  { at: 6000,  w: [0.3, 0.26, 0.2, 0.15, 0.09] },
-  { at: 20000, w: [0.24, 0.22, 0.2, 0.18, 0.16] },
+  { at: 0,     w: [0.36, 0.3, 0.22, 0.12] },
+  { at: 800,   w: [0.3, 0.25, 0.2, 0.15, 0.1] },
+  { at: 4000,  w: [0.24, 0.22, 0.2, 0.18, 0.16] },
+  { at: 12000, w: [0.2, 0.2, 0.2, 0.18, 0.14, 0.08] },
 ];
+const OVERFLOW_TIME = 1.5;          // seconds above the line before game over
 const DIAMOND_BONUS = 5000;
 const SAVE_INTERVAL = 3;            // seconds between cloud saves while playing
 const TIERS = [
-  { r: 17,  c: '#ff5a52', d: '#c9241c', n: 'Like' },
-  { r: 23,  c: '#ff9147', d: '#d35d12', n: 'Bell' },
-  { r: 30,  c: '#ffcf4a', d: '#d69a00', n: 'Comment' },
-  { r: 37,  c: '#66d781', d: '#2f9a4a', n: 'Music' },
-  { r: 45,  c: '#36ccc6', d: '#138b86', n: 'Gamer' },
-  { r: 54,  c: '#5a94ff', d: '#2a5fcc', n: 'Director' },
-  { r: 63,  c: '#a57aff', d: '#6a3bd6', n: 'Vlogger' },
-  { r: 73,  c: '#ff6aab', d: '#d02f74', n: 'Star' },
-  { r: 84,  c: '#e2e7ec', d: '#8f98a3', n: 'Trophy' },
-  { r: 96,  c: '#ffdc6a', d: '#c79a12', n: 'Crown' },
-  { r: 108, c: '#a8ecff', d: '#3fa8d6', n: 'Diamond' },
+  { r: 19,  c: '#ff5a52', d: '#c9241c', n: 'Like' },
+  { r: 25,  c: '#ff9147', d: '#d35d12', n: 'Bell' },
+  { r: 33,  c: '#ffcf4a', d: '#d69a00', n: 'Comment' },
+  { r: 41,  c: '#66d781', d: '#2f9a4a', n: 'Music' },
+  { r: 50,  c: '#36ccc6', d: '#138b86', n: 'Gamer' },
+  { r: 59,  c: '#5a94ff', d: '#2a5fcc', n: 'Director' },
+  { r: 69,  c: '#a57aff', d: '#6a3bd6', n: 'Vlogger' },
+  { r: 80,  c: '#ff6aab', d: '#d02f74', n: 'Star' },
+  { r: 92,  c: '#e2e7ec', d: '#8f98a3', n: 'Trophy' },
+  { r: 106, c: '#ffdc6a', d: '#c79a12', n: 'Crown' },
+  { r: 119, c: '#a8ecff', d: '#3fa8d6', n: 'Diamond' },
 ];
 const NOTES = [262, 294, 330, 392, 440, 523, 587, 659, 784, 880, 1047];
 // feedback tiers (game-feel: keep juice proportional to importance)
@@ -595,7 +596,7 @@ function checkOver(dt){
   const prev = overTimer;
   overTimer = above ? overTimer + dt : Math.max(0, overTimer - dt);
   if (above && Math.floor(prev * 4) !== Math.floor(overTimer * 4)) sfx.warn();
-  if (overTimer > 2){
+  if (overTimer > OVERFLOW_TIME){
     mode = 'over'; overT = 0;
     recordBest();
     persist(true); sfx.over(); buzz([60, 80, 120]); addTrauma(0.5);
@@ -756,7 +757,7 @@ function drawOver(){
 
 function render(){
   uiHits = [];
-  const danger = clamp(overTimer / 2, 0, 1);
+  const danger = clamp(overTimer / OVERFLOW_TIME, 0, 1);
   ctx.save();
   // camera: zoom punch + smooth trauma shake (shakes the view, never the simulation)
   const sh = settings.shake ? trauma * trauma : 0;
